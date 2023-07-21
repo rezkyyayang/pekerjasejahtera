@@ -16,8 +16,8 @@ tags$head(
             type="image/png",
             sizes="180x180"),
   tags$link(rel="manifest",
-            href="www/site.webmanifest"),
-  tags$style("html{zoom:70%;}")
+            href="www/site.webmanifest")
+  #tags$style("html{zoom:70%;}")
   #tags$meta(name="viewport", content="width=device-width, initial-scale=1.0")
   ),
 
@@ -94,7 +94,7 @@ dashboardPage(skin = "green",
                   menuItem(
                     text = "Source Code",
                     icon = icon("code"),
-                    href = "https://github.com/rezkyyayang/"
+                    href = "https://github.com/rezkyyayang/pekerjasejahtera/"
                   )
                   
 
@@ -116,7 +116,7 @@ dashboardPage(skin = "green",
                     fluidPage(
                       h2(tags$b("Dashboard Pekerja Sejahtera")),
                       br(),
-                      div(style = "text-align:justify;font-size:18px", 
+                      div(style = "text-align:justify;font-size:12px", 
                           p("Sebagai seseorang yang baru saja memasuki dunia kerja, mungkin kita semua akan mengalami kebingungan 
                             dimulai dari di daerah mana kita akan bekerja, berapa upah yang akan didapatkan, serta apakah pendapatan 
                             tersebut akan mencukupi untuk kebutuhan sehari-hari.", 
@@ -131,7 +131,8 @@ dashboardPage(skin = "green",
                     ),
                     
                     fluidRow(
-                      
+                      style = "zoom:90%;",
+                      #mengatur panjang hori
                       # infoBox() adalah fungsi untuk membuat kotak berisi nilai
                       infoBox(
                         # parameter title memberi judul pada infoBox
@@ -181,14 +182,15 @@ dashboardPage(skin = "green",
                       
                       # box() digunakan untuk membuat kotak kosong yang fungsinya menampung visualisasi & input agar rapi
                       box(
-                        
+                        style = "zoom:80%;",
                         #mengatur panjang horizontal box
                         width = 2,
                         #mengatur panjang vertikal box
-                        height = 650,
+                        height = 500,
                         
                         img(src = "logo.png",
                             width = "100%"),
+                        br(),
                         br(),
                         br(),
                         # PILIH DATA
@@ -260,21 +262,27 @@ dashboardPage(skin = "green",
                       ),
                       
                       box(
+                        #style = "zoom:70%;",
                         width = 7,
-                        height = 650,
-                        h4(tags$b(textOutput(outputId = "heading_1a"))),
+                        height = 500,
+                        h4(style = "zoom:80%",
+                           tags$b(textOutput(outputId = "heading_1a"))),
                         br(),
                         leafletOutput(outputId = "mapchart_upah",
-                                      height = 525), #DIAGRAM PETA
+                                      height = 380), #DIAGRAM PETA
                         br(),
                         imageOutput("legend_img")
                       ),
                       
                       box(
-                        h4(tags$b(textOutput(outputId = "heading_1b"))),
+                        #style = "zoom:70%;",
+                        #mengatur panjang hori
+                        h4(style = "zoom:80%",
+                           tags$b(textOutput(outputId = "heading_1b"))),
                         width = 3,
-                        height = 650,
-                        plotlyOutput(outputId = "barchart_upah") #DIAGRAM BATANG
+                        height = 500,
+                        plotlyOutput(outputId = "barchart_upah",
+                                     width = "auto") #DIAGRAM BATANG
                       )
                       
                     ),
@@ -290,7 +298,7 @@ dashboardPage(skin = "green",
                     fluidPage(
                       h2(tags$b("Pekerja Sejahtera: Pendapatan vs Pengeluaran")),
                       br(),
-                      div(style = "text-align:justify;font-size:18px", 
+                      div(style = "text-align:justify;font-size:12px", 
                           p("Kondisi persaingan dunia kerja yang semakin ketat menjadikan pekerja membutuhkan perencanaan 
                             yang matang termasuk memikirkan kesejahteraannya berdasarkan pilihan-pilihan yang telah dibuat, 
                             salah satunya pilihan daerah tempat berkerja.",
@@ -308,16 +316,17 @@ dashboardPage(skin = "green",
                     fluidRow(
                       # box() digunakan untuk membuat kotak kosong yang fungsinya menampung visualisasi & input agar rapi
                       box(
+                        style = "zoom:80%;",
                         #mengatur panjang horizontal box
                         width = 2,
                         #mengatur panjang vertikal box
-                        height = 750,
+                        height = 620,
                         
                         img(src = "logo.png",
                             width = "100%"),
                         br(),
                         br(),
-                        
+                        br(),
                         # PILIH DATA
                         selectInput(
                           # inputId adalah identitas input
@@ -375,31 +384,46 @@ dashboardPage(skin = "green",
                         
                       ),
                       
-                      textOutput(outputId = "heading_1",
-                                 container = h2),
+                      div(
+                        style = "zoom:80%",
+                        textOutput(outputId = "heading_1",
+                                   container = h2)
+                      ),
+                      
+                      
                       
                       
                       br(),
                       
                       box(
-                        h4(tags$b("vs PENGELUARAN PER KAPITA")),
-                        div(icon("question-circle"),tags$b("PENGELUARAN PER KAPITA:")," Biaya yang dikeluarkan untuk konsumsi per kapita (orang) selama sebulan baik yang berasal dari pembelian, pemberian, maupun produksi sendiri."),
+                        h4(style = "font-size:14px",
+                           tags$b("vs PENGELUARAN PER KAPITA")),
+                        div(style = "font-size:10px",
+                            icon("question-circle"),tags$b("PENGELUARAN PER KAPITA:")," Biaya yang dikeluarkan untuk konsumsi per kapita (orang) selama sebulan baik yang berasal dari pembelian, pemberian, maupun produksi sendiri."),
                         width = 5,
+                        height = 400,
                         plotlyOutput(outputId = "scatter_upah1")
                       ),
                       
                       box(
-                        h4(tags$b("vs GARIS KEMISKINAN")),
-                        div(icon("question-circle"),tags$b("GARIS KEMISKINAN:")," Nilai rupiah pengeluaran minimum yang diperlukan seseorang untuk memenuhi kebutuhan pokok hidupnya selama sebulan baik kebutuhan makanan maupun non makanan."),
+                        h4(style = "font-size:14px",
+                           tags$b("vs GARIS KEMISKINAN")),
+                        div(style = "font-size:10px",
+                            icon("question-circle"),tags$b("GARIS KEMISKINAN:")," Nilai rupiah pengeluaran minimum yang diperlukan seseorang untuk memenuhi kebutuhan pokok hidupnya selama sebulan baik kebutuhan makanan maupun non makanan."),
                         width = 5,
+                        height = 400,
                         plotlyOutput(outputId = "scatter_upah2")
                       ),
                       
+                      
+                      
                       box(
+                        style = "zoom:80%",
                         width = 10,
                       infoBox(
-                        title = h4(tags$b("Upah Rendah, Pengeluaran/GK Tinggi")),
-                        subtitle = div(style = "text-align:justify;font-size:16px;", "Pekerja di kelompok provinsi ini memiliki pendapatan yang cenderung kurang dari pengeluaran dan kebutuhan hidup sehingga pekerja berpotensi memiliki status",tags$b("KURANG SEJAHTERA.")),
+                        title = h4(style = "font-size:14px",
+                                   tags$b("Upah Rendah, Pengeluaran/GK Tinggi")),
+                        subtitle = div(style = "text-align:justify;font-size:12px;", "Pekerja di kelompok provinsi ini memiliki pendapatan yang cenderung kurang dari pengeluaran dan kebutuhan hidup sehingga pekerja berpotensi memiliki status",tags$b("KURANG SEJAHTERA.")),
                         icon = icon("caret-down"),
                         color = "maroon",
                         width = 4,
@@ -408,8 +432,9 @@ dashboardPage(skin = "green",
                       ),
                       
                       infoBox(
-                        title = h4(tags$b("Upah Sebanding Pengeluaran/GK")),
-                        subtitle = div(style = "text-align:justify;font-size:16px;", "Pekerja di kelompok provinsi ini memiliki pendapatan atau upah yang cenderung sebanding dengan pengeluaran dan kebutuhan hidup sehingga pekerja masih berpotensi memiliki status ",tags$b("SEJAHTERA.")),
+                        title = h4(style= "font-size:14px",
+                                   tags$b("Upah Sebanding Pengeluaran/GK")),
+                        subtitle = div(style = "text-align:justify;font-size:12px;", "Pekerja di kelompok provinsi ini memiliki pendapatan atau upah cenderung sebanding pengeluaran dan kebutuhan hidup sehingga masih berpotensi memiliki status ",tags$b("SEJAHTERA.")),
                         icon = icon("caret-right"),
                         color = "orange",
                         width = 4,
@@ -417,8 +442,9 @@ dashboardPage(skin = "green",
                       ),
                       
                       infoBox(
-                        title = h4(tags$b("Upah Tinggi, Pengeluaran/GK Rendah")),
-                        subtitle = div(style = "text-align:justify;font-size:16px;", "Pekerja di kelompok provinsi ini memiliki pendapatan atau upah yang cenderung lebih tinggi dari pengeluaran dan kebutuhan hidup sehingga pekerja cenderung ",tags$b("SEJAHTERA.")),
+                        title = h4(style= "font-size:14px",
+                                   tags$b("Upah Tinggi, Pengeluaran/GK Rendah")),
+                        subtitle = div(style = "text-align:justify;font-size:12px;", "Pekerja di kelompok provinsi ini memiliki pendapatan atau upah yang cenderung lebih tinggi dari pengeluaran dan kebutuhan hidup sehingga pekerja cenderung ",tags$b("SEJAHTERA.")),
                         icon = icon("caret-up"),
                         color = "teal",
                         width = 4,
@@ -438,7 +464,7 @@ dashboardPage(skin = "green",
                     fluidPage(
                       h2(tags$b("Pekerja Sejahtera: Dari Masa Ke Masa ")),
                       br(),
-                      div(style = "text-align:justify;font-size:18px", 
+                      div(style = "text-align:justify;font-size:12px", 
                           p("Kondisi persaingan dunia kerja yang semakin ketat menjadikan pekerja membutuhkan perencanaan 
                             yang matang termasuk memikirkan kesejahteraannya berdasarkan pilihan-pilihan yang telah dibuat, 
                             salah satunya pilihan daerah tempat berkerja.",
@@ -453,7 +479,7 @@ dashboardPage(skin = "green",
                     ),
                     
                     fluidRow(
-                      
+                      style = "zoom:80%",
                       # infoBox() adalah fungsi untuk membuat kotak berisi nilai
                       infoBox(
                         # parameter title memberi judul pada infoBox
@@ -473,7 +499,7 @@ dashboardPage(skin = "green",
                         icon = icon("earth-asia"),
                         color = "aqua",
                         width = 3,
-                        subtitle = div(icon("question-circle"),"Upah Minimum Provinsi (UMP) dalam sebulan yang ditetapkan pemerintah")
+                        subtitle = div(icon("question-circle"),"Upah Minimum Provinsi dalam sebulan yang ditetapkan pemerintah")
                       ),
                       
                       infoBox(
@@ -501,6 +527,7 @@ dashboardPage(skin = "green",
                     fluidRow(
                       # box() digunakan untuk membuat kotak kosong yang fungsinya menampung visualisasi & input agar rapi
                       box(
+                        style = "zoom:80%;",
                         #mengatur panjang horizontal box
                         width = 2,
                         #mengatur panjang vertikal box
@@ -508,6 +535,7 @@ dashboardPage(skin = "green",
                         
                         img(src = "logo.png",
                             width = "100%"),
+                        br(),
                         br(),
                         br(),
                         # PILIH DATA
@@ -578,28 +606,41 @@ dashboardPage(skin = "green",
                       box(
                         textOutput(outputId = "heading_2",
                                    container = h4),
-                        div(icon("question-circle"),tags$b("UPAH PEKERJA SEBULAN"),"  didapatkan dari Upah Pekerja Per Jam yang dikalikan dengan jumlah jam kerja selama sebulan."),
-                        div(tags$b("PENGELUARAN dan GARIS KEMISKINAN RUMAH TANGGA")," didapatkan dari Pengeluaran/GK Per Kapita dikalikan dengan jumlah orang yang ditanggung pekerja."),
+                        
+                        div(style = "font-size:12px",
+                            icon("question-circle"),tags$b("UPAH PEKERJA SEBULAN"),"  didapatkan dari Upah Pekerja Per Jam yang dikalikan dengan jumlah jam kerja selama sebulan."),
+                        div(style = "font-size:12px",
+                            tags$b("PENGELUARAN dan GARIS KEMISKINAN RUMAH TANGGA")," didapatkan dari Pengeluaran/GK Per Kapita dikalikan dengan jumlah orang yang ditanggung pekerja."),
+                        
+                        
                         width = 8,
-                        height = 650,
+                        height = 480,
                         plotlyOutput(outputId = "linechart_gab"),
-                        br(),
-                        
-                        valueBoxOutput(
-                          outputId = "info_1c",
-                          width = 6
+                      
+                        box(
+                          style = "zoom:80%",
+                          width = 15,
+                          valueBoxOutput(
+                            outputId = "info_1c",
+                            width = 6
+                          ),
+                          
+                          valueBoxOutput(
+                            outputId = "info_2c",
+                            width = 6
+                          )
+                          
                         ),
                         
-                        valueBoxOutput(
-                          outputId = "info_2c",
-                          width = 6
-                        ),
+                        
+                        
                       ),
                       
                       
                       
                       
                       box(
+                        style = "zoom:80%",
                         #mengatur panjang horizontal box
                         width = 2,
                         #mengatur panjang vertikal box
@@ -650,7 +691,7 @@ dashboardPage(skin = "green",
                     fluidPage(
                       h2(tags$b("Pekerja Sejahtera: Antar Provinsi")),
                       br(),
-                      div(style = "text-align:justify;font-size:18px", 
+                      div(style = "text-align:justify;font-size:12px", 
                           p("Kondisi persaingan dunia kerja yang semakin ketat menjadikan pekerja membutuhkan perencanaan 
                             yang matang termasuk memikirkan kesejahteraannya berdasarkan pilihan-pilihan yang telah dibuat, 
                             salah satunya pilihan provinsi tempat berkerja.",
@@ -669,10 +710,11 @@ dashboardPage(skin = "green",
                     fluidRow(
                       # box() digunakan untuk membuat kotak kosong yang fungsinya menampung visualisasi & input agar rapi
                       box(
+                        style = "zoom:80%;",
                         #mengatur panjang horizontal box
                         width = 2,
                         #mengatur panjang vertikal box
-                        height = 780,
+                        height = 620,
                         
                         # PILIH DATA
                         selectInput(
@@ -755,22 +797,29 @@ dashboardPage(skin = "green",
                         )
                       ),
                       
-                      textOutput(outputId = "heading_5",
-                                 container = h2),
-                      div(tags$a(icon("question-circle", id="q_peng_gk")), "Pengeluaran dan Garis Kemiskinan Rumah Tangga"),
+                      div(style = "zoom:80%;",
+                          textOutput(outputId = "heading_5",
+                                     container = h2),
+                          tags$a(icon("question-circle", id="q_peng_gk")), "Pengeluaran dan Garis Kemiskinan Rumah Tangga"
+                          ),
+                      
+                      
+                         
                       
                       br(),
                       
                       box(
+                        #style = "zoom:80%",
                         width = 7,
-                        height = 500,
+                        height = 380,
                         br(),
                         plotlyOutput(outputId = "scatter_upah3")
                       ),
                       
                       box(
+                        style = "zoom:80%;",
                         width = 3,
-                        height = 500,
+                        height = 380,
                         h3(tags$b("Rekomendasi Pekerja")),
                         br(),
                         valueBoxOutput(outputId = "rekomendasi",
@@ -782,6 +831,7 @@ dashboardPage(skin = "green",
                       ),
                       
                       box(
+                        style = "zoom:80%;",
                         width = 10,
                         infoBox(
                           title = h4(style="font-size=20px;",tags$b("TIDAK SEJAHTERA")),
@@ -990,47 +1040,51 @@ dashboardPage(skin = "green",
                  )
                ),
                
+               
+               div(
                # memberikan keterangan singkat setiap variabel
                bsPopover(id="q_upah",
                          title = "Upah Pekerja Per Jam",
                          content = "Pendapatan atau upah yang diterima pekerja dari hasil pekerjaannya selama seminggu terakhir dibagi dengan jumlah jam kerja.",
                          trigger = "hover",
-                         placement = "right",
-                         options = list(container = "body")),
+                         placement = "bottom",
+                         options = list(container = "body"
+                                        #template = '<div class="popover popover-lg" role="tooltip" style="zoom:80%"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
+                                        )),
                
                bsPopover(id="q_ump",
                          title = "Upah Minimum Provinsi",
                          content = "Standar minimum yang digunakan para pekerja atau pelaku industri untuk memberikan upah kepada para pekerjanya. UMP berlaku di seluruh kabupaten/kota dalam satu provinsi.",
                          trigger = "hover",
-                         placement = "right",
+                         placement = "bottom",
                          options = list(container = "body")),
                
                bsPopover(id="q_peng",
                          title = "Rata-Rata Pengeluaran Per Kapita",
                          content = "Biaya yang dikeluarkan untuk konsumsi per kapita (orang) selama sebulan baik yang berasal dari pembelian, pemberian, maupun produksi sendiri.",
                          trigger = "hover",
-                         placement = "right",
+                         placement = "bottom",
                          options = list(container = "body")),
                
                bsPopover(id="q_gk",
                          title = "Garis Kemiskinan Per Kapita",
                          content = "Nilai rupiah pengeluaran minimum yang diperlukan seseorang untuk memenuhi kebutuhan pokok hidupnya selama sebulan baik kebutuhan makanan maupun non makanan.",
                          trigger = "hover",
-                         placement = "right",
+                         placement = "bottom",
                          options = list(container = "body")),
                
                bsPopover(id="q_sejahtera",
                          title = "Status Kesejahteraan",
                          content = "<b>SEJAHTERA</b> artinya pendapatan berada <u>di atas</u> garis rata-rata pengeluaran ruta,<br> <b>KURANG SEJAHTERA</b> artinya pendapatan berada <u>di antara</u> rata-rata pengeluaran ruta dan garis kemiskinan, sedangkan<br> <b>TIDAK SEJAHTERA</b> artinya pendapatan <u>di bawah</u> garis kemiskinan.",
                          trigger = "hover",
-                         placement = "right",
+                         placement = "left",
                          options = list(container = "body")),
                
                bsPopover(id="q_tabungan",
                          title = "Perkiraan Tabungan",
                          content = "<b>PERKIRAAN TABUNGAN atau HUTANG PEKERJA</b> didapatkan dari pendapatan dikurangi dengan rata-rata pengeluaran rumah tangga.",
                          trigger = "hover",
-                         placement = "right",
+                         placement = "left",
                          options = list(container = "body")),
                
                bsPopover(id="q_peng_gk",
@@ -1039,6 +1093,8 @@ dashboardPage(skin = "green",
                          trigger = "hover",
                          placement = "right",
                          options = list(container = "body"))
+               
+               )
                
                
              )

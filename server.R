@@ -124,7 +124,7 @@ shinyServer(function(input, output) {
     leaflet(data.map) %>%
       addTiles() %>%
       #fitBounds(~min(94), ~min(-13), ~max(145), ~max(5)) %>%
-      setView( lat=-3, lng=118 , zoom=4.5) %>%
+      setView( lat=-3, lng=118 , zoom=4.4) %>%
       addPolygons(stroke = FALSE, smoothFactor = 0.3, fillOpacity = 1,
                   fillColor = ~mypalette(nilai),
                   label = ~paste0(provinsi, ": Rp", formatC(nilai, big.mark = ".", decimal.mark = ","))) %>%
@@ -196,11 +196,12 @@ shinyServer(function(input, output) {
       ) +
       # memberikan tema
       theme_classic() +
-      theme(legend.position = "none")
+      theme(legend.position = "none",
+            text = element_text(size = 8))
     
     ggplotly(p = barchart_upah1, 
              tooltip = "text",
-             height = 580)
+             height = 420)
     
   })
   
@@ -323,10 +324,11 @@ shinyServer(function(input, output) {
            caption = "Sumber: Badan Pusat Statistik (BPS)") +
       
       theme_minimal()+
-      theme(legend.position = "right")
+      theme(legend.position = "right",
+            text = element_text(size = 8))
     
     
-    ggplotly(p = chart_linechart, tooltip="text")
+    ggplotly(p = chart_linechart, tooltip="text", height = 350)
     
   })
   
@@ -630,10 +632,11 @@ shinyServer(function(input, output) {
            y = "Rata-Rata Pengeluaran Per Kapita (rupiah)",
            caption = "Sumber: Badan Pusat Statistik (BPS)") +
       theme_minimal()+
-      theme(legend.position = "none")
+      theme(legend.position = "none",
+            text = element_text(size = 8))
     
     
-    ggplotly(p = scatterplot_upah1, tooltip = "text")
+    ggplotly(p = scatterplot_upah1, tooltip = "text", height = 300, width = 450)
     
   })
   
@@ -684,9 +687,10 @@ shinyServer(function(input, output) {
            y = "Garis Kemiskinan (rupiah)",
            caption = "Sumber: Badan Pusat Statistik (BPS)") +
       theme_minimal()+
-      theme(legend.position = "none")
+      theme(legend.position = "none",
+            text = element_text(size = 8))
     
-    ggplotly(p = scatterplot_upah2, tooltip = "text")
+    ggplotly(p = scatterplot_upah2, tooltip = "text", height = 300, width = 450)
     
   })
 
@@ -816,12 +820,13 @@ shinyServer(function(input, output) {
            y = "Pengeluaran/GK Rumah Tangga (rupiah)",
            caption = "Sumber: Badan Pusat Statistik (BPS)") +
       theme_minimal()+
-      theme(legend.position = "none")+
+      theme(legend.position = "none",
+            text = element_text(size = 8))+
       xlim(0,max(data_a$upah)+500000)+
       ylim(0,max(data_a$upah)+500000)
     
     
-    ggplotly(p = scatterplot_upah3, tooltip = "text")
+    ggplotly(p = scatterplot_upah3, tooltip = "text", height = 300)
     
   })
   
