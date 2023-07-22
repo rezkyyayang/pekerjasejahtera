@@ -1,48 +1,68 @@
 shinyServer(function(input, output) {
    
-  
+ # input <- data.frame(input_tahun = 2022,
+ #                     input_daerah = "PERDESAANPERKOTAAN",
+ #                     input_jenis = "TOTAL",
+ #                     input_periode = "MARET",
+ #                     input_provinsi = "INDONESIA")
   
   #------------------------HALAMAN 1
   
+  data_p1 <- reactive({
+    data_p1_infoupah <- upah.df %>% 
+      filter(tahun %in% input$input_tahun)
+    
+    data_p1_infoump <- ump.df %>% 
+      filter(tahun %in% input$input_tahun)
+      
+    data_p1_infopeng <- peng.df %>% 
+      filter(tahun %in% input$input_tahun) %>%
+      filter(daerah %in% input$input_daerah) %>%
+      filter(jenis %in% input$input_jenis)
+    
+    data_p1_infogk <- gk.df %>% 
+      #menghubungkan dengan filter
+      filter(tahun %in% input$input_tahun) %>%
+      filter(daerah %in% input$input_daerah) %>%
+      filter(jenis %in% input$input_jenis) %>%
+      filter(periode %in% input$input_periode)
+    
+    data_p1_infoupah %>%
+      left_join(data_p1_infoump, by = "provinsi") %>%
+      left_join(data_p1_infopeng, by = "provinsi") %>%
+      left_join(data_p1_infogk, by = "provinsi") %>%
+      select(provinsi,upah,ump,peng,gk)
+      
+  })
+  
+  data_p1_info <- reactive({
+    data_p1 <- data_p1()
+    data_p1 %>%
+      filter(provinsi %in% input$input_provinsi)
+  })
+  
   # INFO BOX OUTPUT
   output$info_1 <- renderText({
-     info_1 <- upah.df %>% 
-      #menghubungkan dengan filter
-      filter(tahun %in% input$input_tahun) %>% 
-      filter(provinsi %in% input$input_provinsi)
-     glue("Rp",formatC(info_1$upah, big.mark = ".", decimal.mark = ","))
+    data_p1_info <- data_p1_info()
+     glue("Rp",formatC(data_p1_info$upah, big.mark = ".", decimal.mark = ","))
      
   })
   
   output$info_2 <- renderText({
-    info_2 <- ump.df %>% 
-      #menghubungkan dengan filter
-      filter(tahun %in% input$input_tahun) %>% 
-      filter(provinsi %in% input$input_provinsi)
-    glue("Rp",formatC(info_2$ump, big.mark = ".", decimal.mark = ","))
+    data_p1_info <- data_p1_info()
+    glue("Rp",formatC(data_p1_info$ump, big.mark = ".", decimal.mark = ","))
     
   })
   
   output$info_3 <- renderText({
-    info_3 <- peng.df %>% 
-      #menghubungkan dengan filter
-      filter(tahun %in% input$input_tahun) %>% 
-      filter(provinsi %in% input$input_provinsi) %>%
-      filter(daerah %in% input$input_daerah) %>%
-      filter(jenis %in% input$input_jenis)
-    glue("Rp",formatC(info_3$peng, big.mark = ".", decimal.mark = ","))
+    data_p1_info <- data_p1_info()
+    glue("Rp",formatC(data_p1_info$peng, big.mark = ".", decimal.mark = ","))
     
   })
   
   output$info_4 <- renderText({
-    info_4 <- gk.df %>% 
-      #menghubungkan dengan filter
-      filter(tahun %in% input$input_tahun) %>% 
-      filter(provinsi %in% input$input_provinsi) %>%
-      filter(daerah %in% input$input_daerah) %>%
-      filter(jenis %in% input$input_jenis) %>%
-      filter(periode %in% input$input_periode)
-    glue("Rp",formatC(info_4$gk, big.mark = ".", decimal.mark = ","))
+    data_p1_info <- data_p1_info()
+    glue("Rp",formatC(data_p1_info$gk, big.mark = ".", decimal.mark = ","))
     
   })
   
@@ -68,51 +88,52 @@ shinyServer(function(input, output) {
   }, deleteFile = F)
   
   
-  #DIAGRAM PETA (MAP CHART) HALAMAN 1
-  output$mapchart_upah <- renderLeaflet({
+  case_pilih <- reactive({
+    
+    data_p1 <- data_p1()
     
     if(input$input_data1 == "Upah Pekerja Per Jam"){
       
-      case_pilih <- upah.df %>%
-        filter(tahun %in% input$input_tahun) %>%
-        mutate(nilai = upah)
+      data_p1 %>%
+        mutate(nilai = upah) %>%
+        select(provinsi, nilai)
       
     } else {
       if(input$input_data1 == "Upah Minimum Provinsi"){
         
-        case_pilih <- ump.df %>%
-          filter(tahun %in% input$input_tahun) %>%
-          mutate(nilai = ump)
+        data_p1 %>%
+          mutate(nilai = ump) %>%
+          select(provinsi, nilai)
         
       } else {
         if(input$input_data1 == "Pengeluaran Per Kapita"){
           
-          case_pilih <- peng.df %>%
-            filter(tahun %in% input$input_tahun) %>%
-            filter(daerah %in% input$input_daerah) %>%
-            filter(jenis %in% input$input_jenis) %>%
-            mutate(nilai = peng)
+          data_p1 %>%
+            mutate(nilai = peng) %>%
+            select(provinsi, nilai)
           
         } else {
           
-          case_pilih <- gk.df %>%
-            filter(tahun %in% input$input_tahun) %>%
-            filter(daerah %in% input$input_daerah) %>%
-            filter(jenis %in% input$input_jenis) %>%
-            filter(periode %in% input$input_periode) %>%
-            mutate(nilai = gk)
+          data_p1 %>%
+            mutate(nilai = gk) %>%
+            select(provinsi, nilai)
           
         }
       }
     }
     
+  })
+  
+  #DIAGRAM PETA (MAP CHART) HALAMAN 1
+  output$mapchart_upah <- renderLeaflet({
     
+    case_pilih <- case_pilih()
     
     data.map <- left_join(map_indo, case_pilih, by = "provinsi")
     
     mybins <- c()
     for(i in 0:20){
-      mybins <- c(mybins,quantile(data.map$nilai,i/20))
+      mybins <- c(mybins,quantile(data.map$nilai,i/20, na.rm = TRUE))
     }
     
     mypalette <- colorBin(palette=c("#EC7063","#EB984E","#F1C40F","#58D68D","#148F77"), 
@@ -136,42 +157,7 @@ shinyServer(function(input, output) {
   #DIAGRAM BATANG HALAMAN 1
   output$barchart_upah <- renderPlotly({
     
-    if(input$input_data1 == "Upah Pekerja Per Jam"){
-      
-      case_pilih <- upah.df %>%
-        filter(tahun %in% input$input_tahun) %>%
-        mutate(nilai = upah)
-      
-    } else {
-      if(input$input_data1 == "Upah Minimum Provinsi"){
-        
-        case_pilih <- ump.df %>%
-          filter(tahun %in% input$input_tahun) %>%
-          mutate(nilai = ump)
-        
-      } else {
-        if(input$input_data1 == "Pengeluaran Per Kapita"){
-          
-          case_pilih <- peng.df %>%
-            filter(tahun %in% input$input_tahun) %>%
-            filter(daerah %in% input$input_daerah) %>%
-            filter(jenis %in% input$input_jenis) %>%
-            mutate(nilai = peng)
-          
-        } else {
-          
-          case_pilih <- gk.df %>%
-            filter(tahun %in% input$input_tahun) %>%
-            filter(daerah %in% input$input_daerah) %>%
-            filter(jenis %in% input$input_jenis) %>%
-            filter(periode %in% input$input_periode) %>%
-            mutate(nilai = gk)
-          
-        }
-        
-        
-      }
-    }
+    case_pilih <- case_pilih()
     
     barchart_upah1 <- case_pilih %>%
       mutate(text = glue("Provinsi: {provinsi}
@@ -209,17 +195,21 @@ shinyServer(function(input, output) {
   
   #--------------------------HALAMAN 3
   
-  
+ #input <- data.frame(input_tahun3 = c(2015,2022),
+ #                    input_daerah3 = "PERDESAANPERKOTAAN",
+ #                    input_provinsi3 = "INDONESIA",
+ #                    input_jamkerja = 40,
+ #                    input_tanggungan = 1,
+ #                    input_data3 = "Upah Pekerja Sebulan")
   # PLOT LINE CHART
   
-  output$linechart_gab <- renderPlotly({
-    
+  data_p3 <- reactive({
     
     case_upah <- upah.df %>%
       filter(provinsi %in% input$input_provinsi3) %>%
       filter(tahun %in% input$input_tahun3[1]:input$input_tahun3[2]) %>%
       mutate(upah_bulan = upah * input$input_jamkerja * 4)
-      
+    
     case_ump <- ump.df %>%
       filter(provinsi %in% input$input_provinsi3) %>%
       filter(tahun %in% input$input_tahun3[1]:input$input_tahun3[2])
@@ -239,39 +229,49 @@ shinyServer(function(input, output) {
       filter(tahun %in% input$input_tahun3[1]:input$input_tahun3[2]) %>%
       mutate(gk_ruta = gk * input$input_tanggungan)
     
-      
     
+   case_upah %>%
+      left_join(case_ump, by = c("tahun","provinsi")) %>%
+      left_join(case_peng, by = c("tahun","provinsi")) %>%
+      left_join(case_gk, by = c("tahun","provinsi")) %>%
+      select(provinsi, tahun, upah_bulan, ump, peng_ruta, gk_ruta) 
     
-    case_linechart <- case_upah %>%
-      left_join(case_ump, by = "tahun") %>%
-      left_join(case_peng, by = "tahun") %>%
-      left_join(case_gk, by = "tahun") 
-    # 
+  })
+  
+  
+  data_p3_pilih <- reactive({
+    
+    data_p3 <- data_p3()
+    
     if(input$input_data3 == "Upah Pekerja Sebulan"){
-      case_linechart <- case_linechart %>%
+      data_p3 %>%
         mutate(upah_pilih = upah_bulan) %>%
-        dplyr::select(tahun, upah_pilih, peng_ruta, gk_ruta)%>%
+        dplyr::select(provinsi, tahun, upah_pilih, peng_ruta, gk_ruta)%>%
         mutate(text = glue("<b>{input$input_data3}</b>
                             Rp{upah_pilih}")) %>%
         mutate(text1 = glue("<b>Pengeluaran Ruta</b>
                              Rp{peng_ruta}")) %>%
         mutate(text2 = glue("<b>Garis Kemiskinan Ruta</b>
                              Rp{gk_ruta}"))
-        
+      
     } else {
-      case_linechart <- case_linechart %>%
+      data_p3 %>%
         mutate(upah_pilih = ump) %>%
-        dplyr::select(tahun, upah_pilih, peng_ruta, gk_ruta) %>%
-        mutate(text = glue("<b>Tahun</b>: {tahun}
-                          <b>UMP</b>: Rp{upah_pilih}")) %>%
+        dplyr::select(provinsi, tahun, upah_pilih, peng_ruta, gk_ruta) %>%
+        mutate(text = glue("<b>UMP</b>: Rp{upah_pilih}")) %>%
         mutate(text1 = glue("<b>Pengeluaran Ruta</b>
                              Rp{peng_ruta}")) %>%
         mutate(text2 = glue("<b>Garis Kemiskinan Ruta</b>
                              Rp{gk_ruta}"))
     }
     
+  })
+  
+  output$linechart_gab <- renderPlotly({
     
-    chart_linechart <- case_linechart %>% 
+    data_p3_pilih <- data_p3_pilih()
+    
+    chart_linechart <- data_p3_pilih %>% 
       ggplot(aes(x = tahun)) +
       geom_line(aes(y = peng_ruta),
                 colour = "orange") +
@@ -337,78 +337,63 @@ shinyServer(function(input, output) {
   # INFO BOX OUTPUT HALAMAN 3
   
   output$info_1b <- renderText({
-    case_upah2 <- upah.df %>%
-      filter(provinsi %in% input$input_provinsi3) %>%
-      filter(tahun %in% 2022) %>%
-      mutate(upah_bulan = upah * input$input_jamkerja * 4)
     
-    glue("Rp",format(case_upah2$upah_bulan, 
+    data_p3 <- data_p3()
+    
+    data_p3 <- data_p3 %>%
+      filter(tahun == 2022)
+    
+    glue("Rp",format(data_p3$upah_bulan, 
                      scientific = FALSE,
                      big.mark = ".", decimal.mark = ","))
     
   })
   
   output$info_2b <- renderText({
-    case_ump2 <- ump.df %>%
-      filter(provinsi %in% input$input_provinsi3) %>%
-      filter(tahun %in% 2022)
-    glue("Rp",formatC(case_ump2$ump, big.mark = ".", decimal.mark = ","))
+    
+    data_p3 <- data_p3()
+    
+    data_p3 <- data_p3 %>%
+    filter(tahun == 2022)
+    
+    glue("Rp",formatC(data_p3$ump, big.mark = ".", decimal.mark = ","))
     
   })
   
   output$info_3b <- renderText({
-    case_peng2 <- peng.df %>%
-      filter(provinsi %in% input$input_provinsi3) %>%
-      filter(daerah %in% input$input_daerah3) %>%
-      filter(jenis %in% "TOTAL") %>%
-      filter(tahun %in% 2022) %>%
-      mutate(peng_ruta = peng * input$input_tanggungan)
-    glue("Rp",formatC(case_peng2$peng_ruta, big.mark = ".", decimal.mark = ","))
+    
+    data_p3 <- data_p3()
+    
+    data_p3 <- data_p3 %>%
+      filter(tahun == 2022)
+    
+    glue("Rp",formatC(data_p3$peng_ruta, big.mark = ".", decimal.mark = ","))
     
   })
   
   output$info_4b <- renderText({
-    case_gk2 <- gk.df %>%
-      filter(provinsi %in% input$input_provinsi3) %>%
-      filter(daerah %in% input$input_daerah3) %>%
-      filter(jenis %in% "TOTAL") %>%
-      filter(periode %in% "MARET") %>%
-      filter(tahun %in% 2022) %>%
-      mutate(gk_ruta = gk * input$input_tanggungan)
-    glue("Rp",formatC(case_gk2$gk_ruta, big.mark = ".", decimal.mark = ","))
+    data_p3 <- data_p3()
+    
+    data_p3 <- data_p3 %>%
+      filter(tahun == 2022)
+    
+    glue("Rp",formatC(data_p3$gk_ruta, big.mark = ".", decimal.mark = ","))
     
   })
   
   # VALUE BOX STATUS KESEJAHTERAAN HALAMAN 3
   
   output$info_1c <- renderValueBox({
-    #UPAH PEKERJA
-    case_upah2 <- upah.df %>%
-      filter(provinsi %in% input$input_provinsi3) %>%
-      filter(tahun %in% 2022) %>%
-      mutate(upah_bulan = upah * input$input_jamkerja * 4)
     
-    #RATA2 PENGELUARAN
-    case_peng2 <- peng.df %>%
-      filter(provinsi %in% input$input_provinsi3) %>%
-      filter(daerah %in% input$input_daerah3) %>%
-      filter(jenis %in% "TOTAL") %>%
-      filter(tahun %in% 2022) %>%
-      mutate(peng_ruta = peng * input$input_tanggungan)
+    data_p3_pilih <- data_p3_pilih()
     
-    #GARIS KEMISKINAN
-    case_gk2 <- gk.df %>%
-      filter(provinsi %in% input$input_provinsi3) %>%
-      filter(daerah %in% input$input_daerah3) %>%
-      filter(jenis %in% "TOTAL") %>%
-      filter(periode %in% "MARET") %>%
-      filter(tahun %in% 2022) %>%
-      mutate(gk_ruta = gk * input$input_tanggungan)
+    data_p3_pilih <- data_p3_pilih  %>%
+      filter(tahun == 2022)
     
-    if(case_upah2$upah_bulan > case_peng2$peng_ruta){
+    if(data_p3_pilih$upah_pilih > data_p3_pilih$peng_ruta){
       status_sejahtera <- "SEJAHTERA"
     } else {
-      if(case_upah2$upah_bulan > case_gk2$gk_ruta){
+      if(data_p3_pilih$upah_pilih > data_p3_pilih$gk_ruta){
         status_sejahtera <- "KURANG SEJAHTERA"
       } else {
         status_sejahtera <- "TIDAK SEJAHTERA"
@@ -452,22 +437,13 @@ shinyServer(function(input, output) {
   # VALUE BOX PERKIRAAN TABUNGAN HALAMAN 3
   
   output$info_2c <- renderValueBox({
-    #UPAH PEKERJA
-    case_upah2 <- upah.df %>%
-      filter(provinsi %in% input$input_provinsi3) %>%
-      filter(tahun %in% 2022) %>%
-      mutate(upah_bulan = upah * input$input_jamkerja * 4)
     
-    #RATA2 PENGELUARAN
-    case_peng2 <- peng.df %>%
-      filter(provinsi %in% input$input_provinsi3) %>%
-      filter(daerah %in% input$input_daerah3) %>%
-      filter(jenis %in% "TOTAL") %>%
-      filter(tahun %in% 2022) %>%
-      mutate(peng_ruta = peng * input$input_tanggungan)
+    data_p3_pilih <- data_p3_pilih()
     
-    
-    tabungan <- case_upah2$upah_bulan - case_peng2$peng_ruta
+    data_p3_pilih <- data_p3_pilih  %>%
+      filter(tahun == 2022)
+
+    tabungan <- data_p3_pilih$upah_pilih - data_p3_pilih$peng_ruta
     
     tabungan_text <- glue("Rp",format(abs(tabungan),
                                  scientific = FALSE,
@@ -515,27 +491,15 @@ shinyServer(function(input, output) {
   
   output$info_1d <- renderText({
     
-    #RATA2 PENGELUARAN
-    case_peng2 <- peng.df %>%
-      filter(provinsi %in% input$input_provinsi3) %>%
-      filter(daerah %in% input$input_daerah3) %>%
-      filter(jenis %in% "TOTAL") %>%
-      filter(tahun %in% 2022) %>%
-      mutate(peng_ruta = peng * input$input_tanggungan)
+    data_p3_pilih <- data_p3_pilih()
     
-    #GARIS KEMISKINAN
-    case_gk2 <- gk.df %>%
-      filter(provinsi %in% input$input_provinsi3) %>%
-      filter(daerah %in% input$input_daerah3) %>%
-      filter(jenis %in% "TOTAL") %>%
-      filter(periode %in% "MARET") %>%
-      filter(tahun %in% 2022) %>%
-      mutate(gk_ruta = gk * input$input_tanggungan)
+    data_p3_pilih <- data_p3_pilih  %>%
+      filter(tahun == 2022)
     
-    if(input$upah_sendiri > case_peng2$peng_ruta){
+    if(input$upah_sendiri > data_p3_pilih$peng_ruta){
       status_sejahtera <- "SEJAHTERA"
     } else {
-      if(input$upah_sendiri > case_gk2$gk_ruta){
+      if(input$upah_sendiri > data_p3_pilih$gk_ruta){
         status_sejahtera <- "KURANG SEJAHTERA"
       } else {
         status_sejahtera <- "TIDAK SEJAHTERA"
@@ -547,16 +511,12 @@ shinyServer(function(input, output) {
   
   output$info_2d <- renderText({
     
-    #RATA2 PENGELUARAN
-    case_peng2 <- peng.df %>%
-      filter(provinsi %in% input$input_provinsi3) %>%
-      filter(daerah %in% input$input_daerah3) %>%
-      filter(jenis %in% "TOTAL") %>%
-      filter(tahun %in% 2022) %>%
-      mutate(peng_ruta = peng * input$input_tanggungan)
+    data_p3_pilih <- data_p3_pilih()
     
-    
-    tabungan <- input$upah_sendiri - case_peng2$peng_ruta
+    data_p3_pilih <- data_p3_pilih  %>%
+      filter(tahun == 2022)
+
+    tabungan <- input$upah_sendiri - data_p3_pilih$peng_ruta
     
     glue("Rp",format(tabungan,
                      scientific = FALSE,
@@ -573,13 +533,61 @@ shinyServer(function(input, output) {
   
   
   
-  
-  
   #--------------------------------HALAMAN 2
+  
+  data_p2 <-reactive({
+    
+    if(input$input_data2 == "Upah Pekerja Per Jam"){
+      
+      data_upah <- upah.df %>%
+        filter(tahun %in% input$input_tahun2)
+      
+    } else {
+      
+      data_upah <- ump.df %>%
+        filter(tahun %in% input$input_tahun2) %>%
+        mutate(upah = ump)
+    }
+    
+    
+    data_peng <- peng.df %>%
+      filter(tahun %in% input$input_tahun2) %>%
+      filter(daerah %in% input$input_daerah2) %>%
+      filter(jenis %in% input$input_jenis2)
+    
+    data_gk <- gk.df %>%
+      filter(tahun %in% input$input_tahun2) %>%
+      filter(daerah %in% input$input_daerah2) %>%
+      filter(jenis %in% input$input_jenis2) %>%
+      filter(periode %in% "MARET")
+    
+    data_p2 <- data_upah %>%
+      left_join(data_peng, by="provinsi") %>%
+      left_join(data_gk, by="provinsi") %>%
+      select(provinsi,upah,peng,gk)
+      
+    data_p2 %>%
+      mutate(q_peng = case_when(upah <= median(data_p2$upah, na.rm = TRUE) & peng >= median(data_p2$peng, na.rm = TRUE) ~ "Q2",
+                                upah >= median(data_p2$upah, na.rm = TRUE) & peng <= median(data_p2$peng, na.rm = TRUE) ~ "Q4",
+                                  TRUE ~ "MID")) %>%
+      mutate(text1 = glue("<b>Provinsi</b>: {provinsi}
+                         <b>{input$input_data2}</b>: Rp{upah}
+                         <b>Pengeluaran Per Kapita</b>: Rp{peng}")) %>%
+      
+      mutate(q_gk = case_when(upah <= median(data_p2$upah, na.rm = TRUE) & gk >= median(data_p2$gk, na.rm = TRUE) ~ "Q2",
+                              upah >= median(data_p2$upah, na.rm = TRUE) & gk <= median(data_p2$gk, na.rm = TRUE) ~ "Q4",
+                                  TRUE ~ "MID")) %>%
+      mutate(text2 = glue("<b>Provinsi</b>: {provinsi}
+                         <b>{input$input_data2}</b>: Rp{upah}
+                         <b>Garis Kemiskinan</b>: Rp{gk}"))
+    
+    
+  })
+  
   
   #HEADING HALAMAN 2
   output$heading_1 <- renderText({
-    glue("{input$input_data} vs Pengeluaran dan Garis Kemiskinan")
+    glue("{input$input_data2} vs Pengeluaran dan Garis Kemiskinan")
   })
   
   
@@ -587,43 +595,18 @@ shinyServer(function(input, output) {
   
   output$scatter_upah1 <- renderPlotly({
     
-    if(input$input_data == "Upah Pekerja Per Jam"){
-      data1 <- upah.df %>%
-        filter(tahun %in% input$input_tahun2)
-    } else {
-      data1 <- ump.df %>%
-        filter(tahun %in% input$input_tahun2)
-    }
+    data_p2 <- data_p2()
     
     
-    data2 <- peng.df %>%
-      filter(tahun %in% input$input_tahun2) %>%
-      filter(daerah %in% input$input_daerah2) %>%
-      filter(jenis %in% input$input_jenis2)
-    
-    data_a <- data1 %>%
-      left_join(data2, by="provinsi")
-    
-    data_a <- data_a[,c(1,3,7)]
-    colnames(data_a) <- c("provinsi","upah","peng")
-    
-    data_a <- data_a %>%
-      mutate(quadrant = case_when(data_a$upah <= median(data_a$upah, na.rm = TRUE) & data_a$peng >= median(data_a$peng, na.rm = TRUE) ~ "Q2",
-                                  data_a$upah >= median(data_a$upah, na.rm = TRUE) & data_a$peng <= median(data_a$peng, na.rm = TRUE) ~ "Q4",
-                                  TRUE ~ "MID")) %>%
-      mutate(text = glue("<b>Provinsi</b>: {provinsi}
-                         <b>{input$input_data}</b>: Rp{upah}
-                         <b>Pengeluaran Per Kapita</b>: Rp{peng}"))
-    
-    scatterplot_upah1 <- data_a %>%
+    scatterplot_upah1 <- data_p2 %>%
       ggplot(aes(x = upah,
                  y = peng,
-                 color = quadrant,
-                 text = text)) +
-      geom_vline(xintercept = median(data_a$upah, na.rm=TRUE))+
-      geom_hline(yintercept = median(data_a$peng, na.rm=TRUE))+
+                 color = q_peng,
+                 text = text1)) +
+      geom_vline(xintercept = median(data_p2$upah, na.rm=TRUE))+
+      geom_hline(yintercept = median(data_p2$peng, na.rm=TRUE))+
       geom_point(aes(size = upah))+
-      geom_text(data=data_a[data_a$provinsi %in% input$input_provinsi2,],
+      geom_text(data = data_p2[data_p2$provinsi %in% input$input_provinsi2,],
                 aes(x= upah-0.05*upah,
                     y= peng-0.05*peng,
                     label = glue("<b>{provinsi}</b>")))+
@@ -642,43 +625,18 @@ shinyServer(function(input, output) {
   
   output$scatter_upah2 <- renderPlotly({
     
-    if(input$input_data == "Upah Pekerja Per Jam"){
-      data3 <- upah.df %>%
-        filter(tahun %in% input$input_tahun2)
-    } else {
-      data3 <- ump.df %>%
-        filter(tahun %in% input$input_tahun2)
-    }
+    data_p2 <- data_p2()
     
-    data4 <- gk.df %>%
-      filter(tahun %in% input$input_tahun2) %>%
-      filter(daerah %in% input$input_daerah2) %>%
-      filter(jenis %in% input$input_jenis2) %>%
-      filter(periode %in% "MARET")
     
-    data_b <- data3 %>%
-      left_join(data4, by="provinsi")
-    
-    data_b <- data_b[,c(1,3,8)]
-    colnames(data_b) <- c("provinsi","upah","gk")
-    
-    data_b <- data_b %>%
-      mutate(quadrant = case_when(data_b$upah <= median(data_b$upah, na.rm = TRUE) & data_b$gk >= median(data_b$gk, na.rm = TRUE) ~ "Q2",
-                                  data_b$upah >= median(data_b$upah, na.rm = TRUE) & data_b$gk <= median(data_b$gk, na.rm = TRUE) ~ "Q4",
-                                  TRUE ~ "MID")) %>%
-      mutate(text = glue("<b>Provinsi</b>: {provinsi}
-                         <b>{input$input_data}</b>: Rp{upah}
-                         <b>Garis Kemiskinan</b>: Rp{gk}"))
-    
-    scatterplot_upah2 <- data_b %>%
+    scatterplot_upah2 <- data_p2 %>%
       ggplot(aes(x = upah,
                  y = gk,
-                 color = quadrant,
-                 text = text)) +
-      geom_vline(xintercept = median(data_b$upah, na.rm = TRUE))+
-      geom_hline(yintercept = median(data_b$gk, na.rm = TRUE))+
+                 color = q_gk,
+                 text = text2)) +
+      geom_vline(xintercept = median(data_p2$upah, na.rm = TRUE))+
+      geom_hline(yintercept = median(data_p2$gk, na.rm = TRUE))+
       geom_point(aes(size = upah))+
-      geom_text(data=data_b[data_b$provinsi %in% input$input_provinsi2,],
+      geom_text(data = data_p2[data_p2$provinsi %in% input$input_provinsi2,],
                 aes(x= upah-0.05*upah,
                     y= gk-0.05*gk,
                     label = glue("<b>{provinsi}</b>")))+
@@ -697,6 +655,59 @@ shinyServer(function(input, output) {
   
   #------------------------------HALAMAN 4
   
+  
+  data_p4 <- reactive({
+    
+    if(input$input_data5 == "Upah Pekerja Per Jam"){
+      data_upah <- upah.df %>%
+        filter(tahun %in% input$input_tahun5) %>%
+        mutate(upah = upah * input$input_jamkerja5 * 4)
+    } else {
+      data_upah <- ump.df %>%
+        filter(tahun %in% input$input_tahun5) %>%
+        mutate(upah = ump)
+    }
+    
+    
+    data_peng <- peng.df %>%
+      filter(tahun %in% input$input_tahun5) %>%
+      filter(daerah %in% input$input_daerah5) %>%
+      filter(jenis %in% "TOTAL") %>%
+      mutate(peng = peng * input$input_tanggungan5)
+    
+    data_gk <- gk.df %>%
+      filter(tahun %in% input$input_tahun5) %>%
+      filter(daerah %in% input$input_daerah5) %>%
+      filter(jenis %in% "TOTAL") %>%
+      filter(periode %in% "MARET") %>%
+      mutate(gk = gk * input$input_tanggungan5)
+    
+    data_upah %>%
+      left_join(data_peng, by="provinsi") %>%
+      left_join(data_gk, by="provinsi") %>%
+      select(provinsi, upah, peng, gk) %>%
+      
+      mutate(katg = case_when(upah <= gk & upah < peng ~ "TIDAK SEJAHTERA",
+                              upah >= peng & upah > gk ~ "SEJAHTERA",
+                              upah < peng & upah > gk ~ "KURANG SEJAHTERA")) %>%
+      mutate(katg = as.factor(katg)) %>%
+      
+      
+      mutate(text1 = glue("<b>Provinsi</b>: {provinsi}
+                         <b>{input$input_data5}</b>: Rp{upah}
+                         <b>Pengeluaran Ruta</b>: Rp{peng}
+                         <b>Status</b>: {katg}")) %>%
+      
+      mutate(text2 = glue("<b>Provinsi</b>: {provinsi}
+                         <b>{input$input_data5}</b>: Rp{upah}
+                         <b>Garis Kemiskinan Ruta</b>: Rp{gk}
+                         <b>Status</b>: {katg}")) %>%
+      
+      filter(provinsi %in% input$input_provinsi5)
+    
+    
+  })
+  
   #HEADING HALAMAN 4
   output$heading_5 <- renderText({
     glue("{input$input_data5} vs Pengeluaran dan Garis Kemiskinan Rumah Tangga")
@@ -707,80 +718,12 @@ shinyServer(function(input, output) {
   
   output$scatter_upah3 <- renderPlotly({
     
-    if(input$input_data5 == "Upah Pekerja Per Jam"){
-      data1 <- upah.df %>%
-        filter(tahun %in% input$input_tahun5) %>%
-        mutate(upah = upah * input$input_jamkerja5 * 4)
-    } else {
-      data1 <- ump.df %>%
-        filter(tahun %in% input$input_tahun5) %>%
-        mutate(upah = ump)
-    }
-    
-    
-    data2 <- peng.df %>%
-      filter(tahun %in% input$input_tahun5) %>%
-      filter(daerah %in% input$input_daerah5) %>%
-      filter(jenis %in% "TOTAL") %>%
-      mutate(peng = peng * input$input_tanggungan5)
-    
-    data3 <- gk.df %>%
-      filter(tahun %in% input$input_tahun5) %>%
-      filter(daerah %in% input$input_daerah5) %>%
-      filter(jenis %in% "TOTAL") %>%
-      filter(periode %in% "MARET") %>%
-      mutate(gk = gk * input$input_tanggungan5)
-    
-    data_a <- data1 %>%
-      left_join(data2, by="provinsi") %>%
-      left_join(data3, by="provinsi")
-    
-    data_a <- data_a[,c("provinsi","upah","peng","gk")]
-    #colnames(data_a) <- c("provinsi","upah","peng")
-    
-    data_a <- data_a %>%
-      
-      mutate(katg = case_when(upah <= gk & upah < peng ~ "TIDAK SEJAHTERA",
-                              upah >= peng & upah > gk ~ "SEJAHTERA",
-                              upah < peng & upah > gk ~ "KURANG SEJAHTERA")) %>%
-      mutate(katg = as.factor(katg)) %>%
-      
-      filter(provinsi %in% input$input_provinsi5)
-    
-    data_a <- data_a %>%
-      
-      mutate(text1 = glue("<b>Provinsi</b>: {provinsi}
-                         <b>{input$input_data5}</b>: Rp{upah}
-                         <b>Pengeluaran Ruta</b>: Rp{peng}
-                         <b>Status</b>: {katg}")) %>%
-      
-      mutate(text2 = glue("<b>Provinsi</b>: {provinsi}
-                         <b>{input$input_data5}</b>: Rp{upah}
-                         <b>Garis Kemiskinan Ruta</b>: Rp{gk}
-                         <b>Status</b>: {katg}"))
-    #polys <- ggplot()
-    
-    #img <- png::readPNG("assets/bg.png")
-    
-    scatterplot_upah3 <- data_a %>%
+    data_p4 <- data_p4()
+
+    scatterplot_upah3 <- data_p4 %>%
       ggplot(aes(x = upah)) +
-      #background_image(img) +
-      #geom_area(aes(x = 1000000,
-      #              y = 1000000))+
-      #geom_ribbon(aes(ymin=0,ymax=1500000),
-      #            fill="#A3E4D7")+
-      #           color = colorFactor(c("#148F77","#D68910","#B03A2E"), factor(katg)),
-      #           fill = colorFactor(c("#148F77","#D68910","#B03A2E"), factor(katg)))) +
-      
-      #geom_ribbon(aes(x = c(0,max(data_a$upah)+500000), ymin=0, ymax=max(data_a$peng)+500000), fill = "#A3E4D7")+
-      #geom_ribbon(aes(x = c(0,max(data_a$upah)+500000), ymin=c(0,max(data_a$upah)+500000), ymax=max(data_a$peng)+500000), fill = "#F1948A")+
       geom_abline(intercept=0,
                   slope = 1)+
-      #geom_polygon(aes(x = c(0, Inf, 0), y = c(0, Inf, Inf), fill = "Sejahera"))+
-      #geom_polygon(aes(x = c(0, Inf, Inf), y = c(0, Inf, 0), fill = "Kurang Sejahtera"))+
-      #scale_fill_manual(values = c("#A3E4D7","#F1948A"))+
-      
-      #geom_polygon(aes(x=x,y=y),data=data.frame(x=c(0,0,500000),y=c(0,500000,500000)),fill="#A3E4D7")+
       geom_segment(aes(x = upah,
                        xend = upah,
                        y = gk,
@@ -805,8 +748,7 @@ shinyServer(function(input, output) {
                  alpha = 0.7,
                  shape = 21,
                  stroke = 2)+
-      geom_text(data=data_a[data_a$provinsi %in% input$input_provinsi5,],
-                aes(x= upah-0.05*upah,
+      geom_text(aes(x= upah-0.05*upah,
                     y= peng-0.05*peng,
                     color = katg,
                     label = glue("<b>{provinsi}</b>")))+
@@ -816,14 +758,14 @@ shinyServer(function(input, output) {
       scale_fill_manual(values = c("SEJAHTERA" = "#48C9B0",
                                    "KURANG SEJAHTERA" = "#F5B041",
                                    "TIDAK SEJAHTERA" = "#EC7063"))+
-      labs(x = glue("{input$input_data} (rupiah)"),
+      labs(x = glue("{input$input_data5} (rupiah)"),
            y = "Pengeluaran/GK Rumah Tangga (rupiah)",
            caption = "Sumber: Badan Pusat Statistik (BPS)") +
       theme_minimal()+
       theme(legend.position = "none",
             text = element_text(size = 8))+
-      xlim(0,max(data_a$upah)+500000)+
-      ylim(0,max(data_a$upah)+500000)
+      xlim(0,max(data_p4$upah)+500000)+
+      ylim(0,max(data_p4$upah)+500000)
     
     
     ggplotly(p = scatterplot_upah3, tooltip = "text", height = 300)
@@ -833,44 +775,16 @@ shinyServer(function(input, output) {
   # REKOMENDASI PROVINSI HALAMAN 4
   output$rekomendasi = renderValueBox({
     
-    if(input$input_data5 == "Upah Pekerja Per Jam"){
-      data1 <- upah.df %>%
-        filter(tahun %in% input$input_tahun5) %>%
-        mutate(upah = upah * input$input_jamkerja5 * 4)
-    } else {
-      data1 <- ump.df %>%
-        filter(tahun %in% input$input_tahun5) %>%
-        mutate(upah = ump)
-    }
+    data_p4 <- data_p4()
     
     
-    data2 <- peng.df %>%
-      filter(tahun %in% input$input_tahun5) %>%
-      filter(daerah %in% input$input_daerah5) %>%
-      filter(jenis %in% "TOTAL") %>%
-      mutate(peng = peng * input$input_tanggungan5)
-    
-    data3 <- gk.df %>%
-      filter(tahun %in% input$input_tahun5) %>%
-      filter(daerah %in% input$input_daerah5) %>%
-      filter(jenis %in% "TOTAL") %>%
-      filter(periode %in% "MARET") %>%
-      mutate(gk = gk * input$input_tanggungan5)
-    
-    data_a <- data1 %>%
-      left_join(data2, by="provinsi") %>%
-      left_join(data3, by="provinsi")
-    
-    data_a <- data_a[,c("provinsi","upah","peng","gk")]
-    
-    data_a <- data_a %>%
-      filter(provinsi %in% input$input_provinsi5) %>%
+    data_p4 <- data_p4 %>%
       mutate(tabungan = upah - peng) %>%
       arrange(-tabungan) %>%
       head(1)
     
     valueBox(
-      value = data_a$provinsi,
+      value = data_p4$provinsi,
       subtitle = "REKOMENDASI PILIHAN PROVINSI",
       icon = icon("globe")
     )
@@ -881,46 +795,15 @@ shinyServer(function(input, output) {
   
   output$reko_status = renderValueBox({
     
-    if(input$input_data5 == "Upah Pekerja Per Jam"){
-      data1 <- upah.df %>%
-        filter(tahun %in% input$input_tahun5) %>%
-        mutate(upah = upah * input$input_jamkerja5 * 4)
-    } else {
-      data1 <- ump.df %>%
-        filter(tahun %in% input$input_tahun5) %>%
-        mutate(upah = ump)
-    }
+    data_p4 <- data_p4()
     
     
-    data2 <- peng.df %>%
-      filter(tahun %in% input$input_tahun5) %>%
-      filter(daerah %in% input$input_daerah5) %>%
-      filter(jenis %in% "TOTAL") %>%
-      mutate(peng = peng * input$input_tanggungan5)
-    
-    data3 <- gk.df %>%
-      filter(tahun %in% input$input_tahun5) %>%
-      filter(daerah %in% input$input_daerah5) %>%
-      filter(jenis %in% "TOTAL") %>%
-      filter(periode %in% "MARET") %>%
-      mutate(gk = gk * input$input_tanggungan5)
-    
-    data_a <- data1 %>%
-      left_join(data2, by="provinsi") %>%
-      left_join(data3, by="provinsi")
-    
-    data_a <- data_a[,c("provinsi","upah","peng","gk")]
-    
-    data_a <- data_a %>%
-      filter(provinsi %in% input$input_provinsi5) %>%
+    data_p4 <- data_p4 %>%
       mutate(tabungan = upah - peng) %>%
       arrange(-tabungan) %>%
-      head(1) %>%
-      mutate(katg = case_when(upah <= gk & upah < peng ~ "TIDAK SEJAHTERA",
-                              upah >= peng & upah > gk ~ "SEJAHTERA",
-                              upah < peng & upah > gk ~ "KURANG SEJAHTERA"))
+      head(1)
     
-    status_sejahtera = data_a$katg
+    status_sejahtera = data_p4$katg
     
     if(status_sejahtera == "SEJAHTERA"){
       valueBox(
@@ -956,43 +839,14 @@ shinyServer(function(input, output) {
   
   output$reko_tabungan = renderValueBox({
     
-    if(input$input_data5 == "Upah Pekerja Per Jam"){
-      data1 <- upah.df %>%
-        filter(tahun %in% input$input_tahun5) %>%
-        mutate(upah = upah * input$input_jamkerja5 * 4)
-    } else {
-      data1 <- ump.df %>%
-        filter(tahun %in% input$input_tahun5) %>%
-        mutate(upah = ump)
-    }
+    data_p4 <- data_p4()
     
-    
-    data2 <- peng.df %>%
-      filter(tahun %in% input$input_tahun5) %>%
-      filter(daerah %in% input$input_daerah5) %>%
-      filter(jenis %in% "TOTAL") %>%
-      mutate(peng = peng * input$input_tanggungan5)
-    
-    data3 <- gk.df %>%
-      filter(tahun %in% input$input_tahun5) %>%
-      filter(daerah %in% input$input_daerah5) %>%
-      filter(jenis %in% "TOTAL") %>%
-      filter(periode %in% "MARET") %>%
-      mutate(gk = gk * input$input_tanggungan5)
-    
-    data_a <- data1 %>%
-      left_join(data2, by="provinsi") %>%
-      left_join(data3, by="provinsi")
-    
-    data_a <- data_a[,c("provinsi","upah","peng","gk")]
-    
-    data_a <- data_a %>%
-      filter(provinsi %in% input$input_provinsi5) %>%
+    data_p4 <- data_p4 %>%
       mutate(tabungan = upah - peng) %>%
       arrange(-tabungan) %>%
       head(1) 
     
-    tabungan = data_a$tabungan
+    tabungan = data_p4$tabungan
     
     tabungan_text <- glue("Rp",format(abs(tabungan),
                                       scientific = FALSE,
@@ -1025,7 +879,6 @@ shinyServer(function(input, output) {
                       width = "100%",
                       id = "imghover2")},
                 deleteFile = F)
-    #style ="hover img{transform: scale(1.5);}")
     
   })
   

@@ -330,7 +330,7 @@ dashboardPage(skin = "green",
                         # PILIH DATA
                         selectInput(
                           # inputId adalah identitas input
-                          inputId = "input_data",
+                          inputId = "input_data2",
                           # label untuk memberi judul/nama pada input
                           label = "Pilih Data",
                           # choices untuk memberikan opsi yang bisa dipilih pada input
