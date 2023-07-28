@@ -91,6 +91,7 @@ dashboardPage(skin = "green",
                     
                   ),
                   
+                  
                   menuItem(
                     text = "Source Code",
                     icon = icon("code"),
@@ -271,7 +272,8 @@ dashboardPage(skin = "green",
                         leafletOutput(outputId = "mapchart_upah",
                                       height = 380), #DIAGRAM PETA
                         br(),
-                        imageOutput("legend_img")
+                        imageOutput("legend_img",
+                                    height = "20px")
                       ),
                       
                       box(
@@ -531,7 +533,7 @@ dashboardPage(skin = "green",
                         #mengatur panjang horizontal box
                         width = 2,
                         #mengatur panjang vertikal box
-                        height = 650,
+                        height = 620,
                         
                         img(src = "logo.png",
                             width = "100%"),
@@ -644,7 +646,7 @@ dashboardPage(skin = "green",
                         #mengatur panjang horizontal box
                         width = 2,
                         #mengatur panjang vertikal box
-                        height = 650,
+                        height = 620,
                         
                         h3("Edit Upah Pekerja"),
                         
@@ -672,10 +674,6 @@ dashboardPage(skin = "green",
                                                    c('scale(1.5) translate(-50%, -50%)')))),
                           uiOutput("legend_img2")
                         ),
-                        #tags$style('div#image:hover {
-                        #            transform: scale(1.5);
-                        #            transform-origin: top left;
-                        #           }')
                         
                       )
                       
@@ -714,7 +712,7 @@ dashboardPage(skin = "green",
                         #mengatur panjang horizontal box
                         width = 2,
                         #mengatur panjang vertikal box
-                        height = 620,
+                        height = 635,
                         
                         # PILIH DATA
                         selectInput(
@@ -835,7 +833,7 @@ dashboardPage(skin = "green",
                         width = 10,
                         infoBox(
                           title = h4(style="font-size=20px;",tags$b("TIDAK SEJAHTERA")),
-                          subtitle = div(style = "text-align:justify;font-size=16px;", "Pekerja di kelompok provinsi ini memiliki pendapatan kurang dari pengeluaran rata-rata dan garis kemiskinan rumah tangga"),
+                          subtitle = div(style = "text-align:justify;font-size=16px;", "Pekerja di kelompok provinsi ini memiliki pendapatan lebih rendah dari pengeluaran rata-rata dan garis kemiskinan rumah tangga"),
                           icon = icon("caret-down"),
                           color = "maroon",
                           width = 4,

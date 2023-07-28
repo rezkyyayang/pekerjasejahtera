@@ -301,12 +301,12 @@ shinyServer(function(input, output) {
                      size = upah_pilih,
                      text = text),
                  colour = "#17A589") +
-      geom_segment(aes(x = 2022,
-                       xend = 2022,
+      geom_segment(aes(x = input$input_tahun3[2],
+                       xend = input$input_tahun3[2],
                        y = 0,
                        yend = input$upah_sendiri),
                    color = "#21618C")+
-      geom_point(aes(x = 2022,
+      geom_point(aes(x = input$input_tahun3[2],
                      y = input$upah_sendiri,
                      text = glue("<b>Pendapatan Saya</b>
                                   Rp{input$upah_sendiri}")),
@@ -341,7 +341,7 @@ shinyServer(function(input, output) {
     data_p3 <- data_p3()
     
     data_p3 <- data_p3 %>%
-      filter(tahun == 2022)
+      filter(tahun == input$input_tahun3[2])
     
     glue("Rp",format(data_p3$upah_bulan, 
                      scientific = FALSE,
@@ -354,7 +354,7 @@ shinyServer(function(input, output) {
     data_p3 <- data_p3()
     
     data_p3 <- data_p3 %>%
-    filter(tahun == 2022)
+    filter(tahun == input$input_tahun3[2])
     
     glue("Rp",formatC(data_p3$ump, big.mark = ".", decimal.mark = ","))
     
@@ -365,7 +365,7 @@ shinyServer(function(input, output) {
     data_p3 <- data_p3()
     
     data_p3 <- data_p3 %>%
-      filter(tahun == 2022)
+      filter(tahun == input$input_tahun3[2])
     
     glue("Rp",formatC(data_p3$peng_ruta, big.mark = ".", decimal.mark = ","))
     
@@ -375,7 +375,7 @@ shinyServer(function(input, output) {
     data_p3 <- data_p3()
     
     data_p3 <- data_p3 %>%
-      filter(tahun == 2022)
+      filter(tahun == input$input_tahun3[2])
     
     glue("Rp",formatC(data_p3$gk_ruta, big.mark = ".", decimal.mark = ","))
     
@@ -388,7 +388,7 @@ shinyServer(function(input, output) {
     data_p3_pilih <- data_p3_pilih()
     
     data_p3_pilih <- data_p3_pilih  %>%
-      filter(tahun == 2022)
+      filter(tahun == input$input_tahun3[2])
     
     if(data_p3_pilih$upah_pilih > data_p3_pilih$peng_ruta){
       status_sejahtera <- "SEJAHTERA"
@@ -441,7 +441,7 @@ shinyServer(function(input, output) {
     data_p3_pilih <- data_p3_pilih()
     
     data_p3_pilih <- data_p3_pilih  %>%
-      filter(tahun == 2022)
+      filter(tahun == input$input_tahun3[2])
 
     tabungan <- data_p3_pilih$upah_pilih - data_p3_pilih$peng_ruta
     
@@ -494,7 +494,7 @@ shinyServer(function(input, output) {
     data_p3_pilih <- data_p3_pilih()
     
     data_p3_pilih <- data_p3_pilih  %>%
-      filter(tahun == 2022)
+      filter(tahun == input$input_tahun3[2])
     
     if(input$upah_sendiri > data_p3_pilih$peng_ruta){
       status_sejahtera <- "SEJAHTERA"
@@ -514,7 +514,7 @@ shinyServer(function(input, output) {
     data_p3_pilih <- data_p3_pilih()
     
     data_p3_pilih <- data_p3_pilih  %>%
-      filter(tahun == 2022)
+      filter(tahun == input$input_tahun3[2])
 
     tabungan <- input$upah_sendiri - data_p3_pilih$peng_ruta
     
@@ -875,10 +875,13 @@ shinyServer(function(input, output) {
   
   output$legend_img3 <- renderUI({
     
-    renderImage({list(src = "assets/legend3.png",
+    output$img3 <- renderImage({list(src = "assets/legend3.png",
                       width = "100%",
                       id = "imghover2")},
                 deleteFile = F)
+    
+    imageOutput("img3",
+                height = "20px")
     
   })
   
