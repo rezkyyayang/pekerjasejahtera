@@ -747,7 +747,7 @@ dashboardPage(skin = "green",
                           label = "Pilih Provinsi",
                           choices = unique(upah.df$provinsi),
                           #nilai default selected
-                          selected = c("INDONESIA"),
+                          selected = c("INDONESIA","DKI JAKARTA", "DI YOGYAKARTA"),
                           multiple = TRUE
                         ),
                         

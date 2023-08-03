@@ -611,7 +611,7 @@ shinyServer(function(input, output) {
                     y= peng-0.05*peng,
                     label = glue("<b>{provinsi}</b>")))+
       scale_color_manual(values = c("orange","maroon","#008080"))+
-      labs(x = glue("{input$input_data} (rupiah)"),
+      labs(x = glue("{input$input_data2} (rupiah)"),
            y = "Rata-Rata Pengeluaran Per Kapita (rupiah)",
            caption = "Sumber: Badan Pusat Statistik (BPS)") +
       theme_minimal()+
@@ -641,7 +641,7 @@ shinyServer(function(input, output) {
                     y= gk-0.05*gk,
                     label = glue("<b>{provinsi}</b>")))+
       scale_color_manual(values = c("orange","maroon","#008080"))+
-      labs(x = glue("{input$input_data} (rupiah)"),
+      labs(x = glue("{input$input_data2} (rupiah)"),
            y = "Garis Kemiskinan (rupiah)",
            caption = "Sumber: Badan Pusat Statistik (BPS)") +
       theme_minimal()+
